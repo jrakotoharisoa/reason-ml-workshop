@@ -298,6 +298,82 @@ let reducer = (elapsedTime: float, state: Types.shipState, action: Actions.all) 
 </details>
 
 ---
+## Activer l'armement de l'enterprise
+
+```
+_#piping_, _#currying_, _#list_, _#spread_
+```
+
+Vous avez essayé d'appuyer sur la barre espace ? Vous verrez que le canon tire bien un projectile mais il reste complètement immobile...
+
+![Les projectiles ne bougent pas!](./docs/project-doesnt-move.gif)
+
+Le système de téléguidage des projectiles semble complètement H.S !
+
+Rendez-vous dans le fichier `Shot_reducer.re` :
+
+```reason
+let shotSpeed = 0.3;
+
+let stillInTheScreen = (shot: Types.shot) : bool => true;
+
+let moveShot = (elapsedTime: float, shot: Types.shot) : Types.shot => shot;
+
+let moveShots = (elapsedTime: float, shots: list(Types.shot)) : list(Types.shot) => shots;
+
+let reducer = (elapsedTime: float, state: Types.shotState, action: Actions.all) : Types.shotState =>
+  switch action {
+  | Tick => {...state, shots: state.shots |> moveShots(elapsedTime)}
+  | _ => state
+  };
+```
+
+Nous allons commencer par implémenter la fonction `moveShot`. Cette fonction comme son nom l'indique est responsable bouger un projectile. Vous pouvez connaitre le comportant attendu en lisant les tests unitaires correspondants.
+
+<details>
+<summary><i>Découvrer la solution ici</i></summary>
+<p>
+<pre>
+let shotSpeed = 0.3;
+/**/
+let moveShot = (elapsedTime: float, shot: Types.shot) : Types.shot => {
+  ...shot,
+  y: shot.y -. elapsedTime *. shotSpeed
+};
+</pre>
+</p>
+</details>
+
+---
+
+Ayant rétablie le téléguidage pour un projectile, nous avons désormais besoin de l'appliquer à l'ensemble de ces derniers en implémentant les fonctions `moveShots` et `stillInTheScreen`. Tout comme la précédente fonction, nous utiliserons les tests unitaires correspondants pour nous guider. Nous aurons besoin pour cette fonction d'utiliser les [Pipes](http://2ality.com/2017/12/functions-reasonml.html#example-piping-lists) et les fonctions `map` et `filter` du module `List` de Reason.
+
+<details>
+<summary><i>Découvrer la solution entière</i></summary>
+<p>
+<pre>
+let shotSpeed = 0.3;
+/**/
+let stillInTheScreen = (shot: Types.shot) : bool => shot.y > 0.;
+/**/
+let moveShot = (elapsedTime: float, shot: Types.shot) : Types.shot => {
+  ...shot,
+  y: shot.y -. elapsedTime *. shotSpeed
+};
+/**/
+let moveShots = (elapsedTime: float, shots: list(Types.shot)) : list(Types.shot) =>
+  shots |> List.map(moveShot(elapsedTime)) |> List.filter(stillInTheScreen);
+/**/
+let reducer = (elapsedTime: float, state: Types.shotState, action: Actions.all) : Types.shotState =>
+  switch action {
+  | Tick => {...state, shots: state.shots |> moveShots(elapsedTime)}
+  | _ => state
+  };
+</pre>
+</p>
+</details>
+
+---
 
 ## Detection des aliens
 
