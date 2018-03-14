@@ -5,8 +5,7 @@
     "init": "bsb -make-world",
     "start": "concurrently -c bgBlue.bold,black.bgRed.bold -n BSB,Webpack 'bsb -make-world -w' 'webpack --watch'",
     "clean": "bsb -clean-world",
-    "test": "jest --watch --bail --no-cache",
-    "jest:clearCache": "jest --clearCache"
+    "test": "jest --watch --bail --no-cache"
   },
   "keywords": [
     "ReasonML",
